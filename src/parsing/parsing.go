@@ -53,6 +53,8 @@ func ParseMap(content []byte) (*m.Map, error) {
 		start = cur
 	case 'E':
 		cur = m.NewCell(m.End)
+	case ' ':
+		cur = m.NewCell(m.Space)
 	}
 
 	rows[0][0] = cur

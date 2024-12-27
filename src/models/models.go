@@ -7,6 +7,7 @@ const (
 	Tile
 	Start
 	End
+	Space
 )
 
 type Direction uint8
