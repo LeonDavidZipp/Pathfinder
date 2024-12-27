@@ -28,16 +28,27 @@ func createTempFile() (string, error) {
 	return tmpfile.Name(), nil
 }
 
-func TestParsing(t *testing.T) {
+var mp *m.Map
+var content []byte
+
+func TestMain(m *testing.M) {
 	path, err := createTempFile()
-	assert.NoError(t, err)
+	if err != nil {
+		panic(err)
+	}
 
-	content, err := ReadFile(path)
-	assert.NoError(t, err)
+	content, err = ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
 
-	mp, err := ParseMap(content)
-	assert.NoError(t, err)
+	mp, err = ParseMap(content)
+	if err != nil {
+		panic(err)
+	}
+}
 
+func TestParseMap(t *testing.T) {
 	rows := bytes.Split(content, []byte("\n"))
 
 	// check if the map was parsed correctly
@@ -104,4 +115,7 @@ func TestParsing(t *testing.T) {
 			assert.Nil(t, mp.Rows[len(mp.Rows)-1][i].Top)
 		}
 	}
+
+	// check if start cell was set correctly
+	assert.Equal(t, mp.Start, mp.Rows[1][1])
 }
