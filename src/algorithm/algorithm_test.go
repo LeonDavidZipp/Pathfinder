@@ -70,6 +70,19 @@ var content7 []byte = []byte(
 11111111`,
 )
 
+var content8 []byte = []byte(
+	`111111111111111111
+1S0000000010000001
+101110101010101101
+101110111010111101
+101000101010111111
+101011101110000001
+101000000001111111
+101111110100000001
+101E00000001010101
+111111111111111111`,
+)
+
 var (
 	mp1 *m.Map
 	mp2 *m.Map
@@ -78,6 +91,7 @@ var (
 	mp5 *m.Map
 	mp6 *m.Map
 	mp7 *m.Map
+	mp8 *m.Map
 	ctx context.Context
 )
 
@@ -118,6 +132,11 @@ func TestMain(m *testing.M) {
 	}
 
 	mp7, err = p.ParseMap(content7)
+	if err != nil {
+		panic(err)
+	}
+
+	mp8, err = p.ParseMap(content8)
 	if err != nil {
 		panic(err)
 	}
@@ -227,4 +246,9 @@ func TestSolveWrapper(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, sol7)
 	assert.Equal(t, uint64(6), sol7.Steps)
+
+	sol8, err := SolveWrapper(ctx, mp8)
+	assert.Nil(t, err)
+	assert.NotNil(t, sol8)
+	assert.Equal(t, uint64(23), sol8.Steps)
 }
