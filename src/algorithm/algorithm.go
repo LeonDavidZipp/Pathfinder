@@ -57,7 +57,7 @@ func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution) {
 				return
 			}
 		default:
-			for _, d := range dirs {
+			for _, d := range dirs[1:] {
 				b := m.CopyBot(&bot)
 				b.Move(d)
 				if b.Pos.Type == m.End {
@@ -70,7 +70,15 @@ func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution) {
 				wg.Add(1)
 				go Solve(b, wg, sol)
 			}
-			return
+			// return
+			bot.Move(dirs[0])
+			if bot.Pos.Type == m.End {
+				sol <- &m.Solution{
+					Steps: bot.Steps,
+					Route: bot.Route,
+				}
+				return
+			}
 		}
 	}
 }
