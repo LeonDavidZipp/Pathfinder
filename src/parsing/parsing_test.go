@@ -10,13 +10,12 @@ import (
 	m "github.com/LeonDavidZipp/Pathfinder/src/models"
 )
 
-func createTempFile() (string, error) {
+func createTempFile(content string) (string, error) {
 	tmpfile, err := os.CreateTemp("", "test_maze*.txt")
 	if err != nil {
 		return "", err
 	}
 
-	content := "11111111111\n1S1E1\n10101\n10001\n11111"
 	if _, err := tmpfile.WriteString(content); err != nil {
 		return "", err
 	}
@@ -32,7 +31,7 @@ var mp *m.Map
 var content []byte
 
 func TestMain(m *testing.M) {
-	path, err := createTempFile()
+	path, err := createTempFile("11111111111\n1S1E1\n10101\n10001\n11111")
 	if err != nil {
 		panic(err)
 	}
