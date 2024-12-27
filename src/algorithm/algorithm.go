@@ -18,6 +18,9 @@ func SolveWrapper(mp *m.Map) (*m.Solution, error) {
 	go Solve(*bot, wg, sol, err)
 	wg.Wait()
 
+	close(sol)
+	close(err)
+
 	switch len(sol) {
 	case 0:
 		return nil, fmt.Errorf("no solution found")

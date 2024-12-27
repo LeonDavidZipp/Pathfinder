@@ -60,12 +60,21 @@ var content6 []byte = []byte(
 111111111111111`,
 )
 
+var content7 []byte = []byte(
+	`11111111111
+111000E1
+1S001111
+11100001
+11111111`,
+)
+
 var mp1 *m.Map
 var mp2 *m.Map
 var mp3 *m.Map
 var mp4 *m.Map
 var mp5 *m.Map
 var mp6 *m.Map
+var mp7 *m.Map
 
 func TestMain(m *testing.M) {
 	var err error
@@ -95,6 +104,11 @@ func TestMain(m *testing.M) {
 	}
 
 	mp6, err = p.ParseMap(content6)
+	if err != nil {
+		panic(err)
+	}
+
+	mp7, err = p.ParseMap(content7)
 	if err != nil {
 		panic(err)
 	}
@@ -133,25 +147,35 @@ func TestSolveWrapper(t *testing.T) {
 	sol1, err := SolveWrapper(mp1)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol1)
-	assert.Equal(t, 1, sol1.Steps)
+	assert.Equal(t, uint64(1), sol1.Steps)
 
 	sol2, err := SolveWrapper(mp2)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol2)
-	assert.Equal(t, 2, sol2.Steps)
+	assert.Equal(t, uint64(2), sol2.Steps)
 
 	sol3, err := SolveWrapper(mp3)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol3)
-	assert.Equal(t, 3, sol3.Steps)
+	assert.Equal(t, uint64(3), sol3.Steps)
 
 	sol4, err := SolveWrapper(mp4)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol4)
-	assert.Equal(t, 10, sol4.Steps)
+	assert.Equal(t, uint64(10), sol4.Steps)
 
 	sol5, err := SolveWrapper(mp5)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol5)
-	assert.Equal(t, 6, sol5.Steps)
+	assert.Equal(t, uint64(6), sol5.Steps)
+
+	sol6, err := SolveWrapper(mp6)
+	assert.Nil(t, err)
+	assert.NotNil(t, sol6)
+	assert.Equal(t, uint64(40), sol6.Steps)
+
+	sol7, err := SolveWrapper(mp7)
+	assert.Nil(t, err)
+	assert.NotNil(t, sol7)
+	assert.Equal(t, uint64(6), sol7.Steps)
 }
