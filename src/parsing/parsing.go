@@ -71,6 +71,8 @@ func ParseMap(content []byte) (*m.Map, error) {
 			start = cur.Right
 		case 'E':
 			cur.Right = m.NewCell(m.End)
+		case ' ':
+			cur.Right = m.NewCell(m.Space)
 		}
 
 		cur.Right.Left = cur
@@ -92,6 +94,8 @@ func ParseMap(content []byte) (*m.Map, error) {
 			start = cur
 		case 'E':
 			cur = m.NewCell(m.End)
+		case ' ':
+			cur = m.NewCell(m.Space)
 		}
 
 		cur.Top = rows[i-1][0]
@@ -109,6 +113,8 @@ func ParseMap(content []byte) (*m.Map, error) {
 				start = cur.Right
 			case 'E':
 				cur.Right = m.NewCell(m.End)
+			case ' ':
+				cur.Right = m.NewCell(m.Space)
 			}
 
 			cur.Right.Left = cur
