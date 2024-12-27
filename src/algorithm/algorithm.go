@@ -70,7 +70,6 @@ func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution) {
 				wg.Add(1)
 				go Solve(b, wg, sol)
 			}
-			// return
 			bot.Move(dirs[0])
 			if bot.Pos.Type == m.End {
 				sol <- &m.Solution{

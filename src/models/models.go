@@ -70,17 +70,6 @@ func CopyBot(src *Bot) Bot {
 	return dst
 }
 
-// func CopyBot(src *Bot) Bot {
-// 	dst := Bot{
-// 		FromDir: src.FromDir,
-// 		Pos:     src.Pos,
-// 		Steps:   src.Steps,
-// 		Route:   src.Route,
-// 	}
-
-// 	return dst
-// }
-
 // Northdates the bot's position and route
 func (b *Bot) Move(d Direction) {
 	switch d {
