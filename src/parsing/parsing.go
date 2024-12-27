@@ -9,6 +9,7 @@ import (
 	m "github.com/LeonDavidZipp/Pathfinder/src/models"
 )
 
+// reads the file
 func ReadFile(path string) ([]byte, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -24,20 +25,20 @@ func ReadFile(path string) ([]byte, error) {
 	return content, nil
 }
 
-// assumes map is valid
+// parses the map from the file's content; assumes map is valid!
 func ParseMap(content []byte) (*m.Map, error) {
 	if len(content) == 0 {
 		return nil, fmt.Errorf("empty map")
 	}
 
-	mp := m.NewMap()
+	var start *m.Cell
 
 	// byte rows
 	r := bytes.Split(content, []byte("\n"))
 	// cell rows
-	c := make([][]*m.Cell, len(r))
-	for i := range c {
-		c[i] = make([]*m.Cell, len(r[i]))
+	rows := make([][]*m.Cell, len(r))
+	for i := range rows {
+		rows[i] = make([]*m.Cell, len(r[i]))
 	}
 
 	// read in first overall element of the map
@@ -49,12 +50,12 @@ func ParseMap(content []byte) (*m.Map, error) {
 		cur = m.NewCell(m.Wall)
 	case 'S':
 		cur = m.NewCell(m.Start)
-		mp.Start = cur
+		start = cur
 	case 'E':
 		cur = m.NewCell(m.End)
 	}
 
-	c[0][0] = cur
+	rows[0][0] = cur
 
 	// read in remaining first row of the map
 	for i := 1; i < len(r[0]); i++ {
@@ -65,14 +66,14 @@ func ParseMap(content []byte) (*m.Map, error) {
 			cur.Right = m.NewCell(m.Wall)
 		case 'S':
 			cur.Right = m.NewCell(m.Start)
-			mp.Start = cur.Right
+			start = cur.Right
 		case 'E':
 			cur.Right = m.NewCell(m.End)
 		}
 
 		cur.Right.Left = cur
 		cur = cur.Right
-		c[0][i] = cur
+		rows[0][i] = cur
 	}
 
 	// now read in rest; differentiate between first column and remaining columns
@@ -86,14 +87,14 @@ func ParseMap(content []byte) (*m.Map, error) {
 			cur = m.NewCell(m.Wall)
 		case 'S':
 			cur = m.NewCell(m.Start)
-			mp.Start = cur
+			start = cur
 		case 'E':
 			cur = m.NewCell(m.End)
 		}
 
-		cur.Top = c[i-1][0]
-		c[i-1][0].Bottom = cur
-		c[i][0] = cur
+		cur.Top = rows[i-1][0]
+		rows[i-1][0].Bottom = cur
+		rows[i][0] = cur
 
 		for j := 1; j < len(r[i]); j++ {
 			switch r[i][j] {
@@ -103,22 +104,20 @@ func ParseMap(content []byte) (*m.Map, error) {
 				cur.Right = m.NewCell(m.Wall)
 			case 'S':
 				cur.Right = m.NewCell(m.Start)
-				mp.Start = cur.Right
+				start = cur.Right
 			case 'E':
 				cur.Right = m.NewCell(m.End)
 			}
 
 			cur.Right.Left = cur
 			if j < al {
-				cur.Right.Top = c[i-1][j]
-				c[i-1][j].Bottom = cur.Right
+				cur.Right.Top = rows[i-1][j]
+				rows[i-1][j].Bottom = cur.Right
 			}
-			c[i][j] = cur.Right
+			rows[i][j] = cur.Right
 			cur = cur.Right
 		}
 	}
 
-	mp.Rows = c
-
-	return mp, nil
+	return m.NewMap(start, rows), nil
 }
