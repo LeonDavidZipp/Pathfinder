@@ -115,6 +115,7 @@ func (b *Bot) Move(d Direction) {
 		}
 		b.Route = append(b.Route, b.Pos)
 	}
+	b.Steps++
 }
 
 // counts & returns all possible new paths from the current position
