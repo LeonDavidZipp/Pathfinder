@@ -1,8 +1,10 @@
 package algorithm
 
 import (
+	"context"
 	"os"
 	"testing"
+	"time"
 
 	m "github.com/LeonDavidZipp/Pathfinder/src/models"
 	p "github.com/LeonDavidZipp/Pathfinder/src/parsing"
@@ -61,22 +63,29 @@ var content6 []byte = []byte(
 )
 
 var content7 []byte = []byte(
-	`11111111111
+	`11111111
 111000E1
 1S001111
 11100001
 11111111`,
 )
 
-var mp1 *m.Map
-var mp2 *m.Map
-var mp3 *m.Map
-var mp4 *m.Map
-var mp5 *m.Map
-var mp6 *m.Map
-var mp7 *m.Map
+var (
+	mp1 *m.Map
+	mp2 *m.Map
+	mp3 *m.Map
+	mp4 *m.Map
+	mp5 *m.Map
+	mp6 *m.Map
+	mp7 *m.Map
+	ctx context.Context
+)
 
 func TestMain(m *testing.M) {
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
 	var err error
 	mp1, err = p.ParseMap(content1)
 	if err != nil {
@@ -116,65 +125,105 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestCountPaths(t *testing.T) {
+	mp, err := p.ParseMap([]byte("11111\n11011\n10S01\n11011\n11111"))
+	assert.NoError(t, err)
+	bot := m.NewBot(mp.Start)
+
+	bot.Dir = m.None
+	paths := bot.CountPaths()
+	assert.Len(t, paths, 4)
+
+	bot.Dir = m.North
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 3)
+
+	bot.Dir = m.East
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 3)
+
+	bot.Dir = m.South
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 3)
+
+	bot.Dir = m.West
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 3)
+
+	bot.Move(m.East)
+	assert.Equal(t, m.East, bot.Dir)
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 0)
+
+	bot.Dir = m.West
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 1)
+
+	bot.Move(m.West)
+	paths = bot.CountPaths()
+	assert.Len(t, paths, 3)
+	assert.Equal(t, m.West, bot.Dir)
+}
+
 func TestMove(t *testing.T) {
 	moveMp, err := p.ParseMap([]byte("1111\n1011\n1S01\n1111"))
 	assert.NoError(t, err)
 	bot := m.NewBot(moveMp.Start)
 	assert.Equal(t, moveMp.Start, bot.Pos)
 
-	bot.Move(m.Right)
-	assert.Equal(t, m.Left, bot.FromDir)
+	bot.Move(m.East)
+	assert.Equal(t, m.East, bot.Dir)
 	assert.Equal(t, moveMp.Rows[2][2], bot.Pos)
 	assert.Equal(t, uint64(1), bot.Steps)
 
-	bot.Move(m.Left)
-	assert.Equal(t, m.Right, bot.FromDir)
+	bot.Move(m.West)
+	assert.Equal(t, m.West, bot.Dir)
 	assert.Equal(t, moveMp.Rows[2][1], bot.Pos)
 	assert.Equal(t, uint64(2), bot.Steps)
 
-	bot.Move(m.Up)
-	assert.Equal(t, m.Down, bot.FromDir)
+	bot.Move(m.North)
+	assert.Equal(t, m.North, bot.Dir)
 	assert.Equal(t, moveMp.Rows[1][1], bot.Pos)
 	assert.Equal(t, uint64(3), bot.Steps)
 
-	bot.Move(m.Down)
-	assert.Equal(t, m.Up, bot.FromDir)
+	bot.Move(m.South)
+	assert.Equal(t, m.South, bot.Dir)
 	assert.Equal(t, moveMp.Rows[2][1], bot.Pos)
 	assert.Equal(t, uint64(4), bot.Steps)
 }
 
 func TestSolveWrapper(t *testing.T) {
-	sol1, err := SolveWrapper(mp1)
+	sol1, err := SolveWrapper(ctx, mp1)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol1)
 	assert.Equal(t, uint64(1), sol1.Steps)
 
-	sol2, err := SolveWrapper(mp2)
+	sol2, err := SolveWrapper(ctx, mp2)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol2)
 	assert.Equal(t, uint64(2), sol2.Steps)
 
-	sol3, err := SolveWrapper(mp3)
+	sol3, err := SolveWrapper(ctx, mp3)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol3)
 	assert.Equal(t, uint64(3), sol3.Steps)
 
-	sol4, err := SolveWrapper(mp4)
+	sol4, err := SolveWrapper(ctx, mp4)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol4)
 	assert.Equal(t, uint64(10), sol4.Steps)
 
-	sol5, err := SolveWrapper(mp5)
+	sol5, err := SolveWrapper(ctx, mp5)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol5)
 	assert.Equal(t, uint64(6), sol5.Steps)
 
-	sol6, err := SolveWrapper(mp6)
+	sol6, err := SolveWrapper(ctx, mp6)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol6)
 	assert.Equal(t, uint64(40), sol6.Steps)
 
-	sol7, err := SolveWrapper(mp7)
+	sol7, err := SolveWrapper(ctx, mp7)
 	assert.Nil(t, err)
 	assert.NotNil(t, sol7)
 	assert.Equal(t, uint64(6), sol7.Steps)

@@ -1,55 +1,58 @@
 package algorithm
 
 import (
-	"fmt"
+	"context"
 	"sync"
 
 	m "github.com/LeonDavidZipp/Pathfinder/src/models"
 )
 
 // handles solving & everything related to it
-func SolveWrapper(mp *m.Map) (*m.Solution, error) {
+func SolveWrapper(ctx context.Context, mp *m.Map) (*m.Solution, error) {
 	bot := m.NewBot(mp.Start)
 	wg := &sync.WaitGroup{}
 	sol := make(chan *m.Solution, 42)
-	err := make(chan error, 42)
 
+	// start solving
 	wg.Add(1)
-	go Solve(*bot, wg, sol, err)
-	wg.Wait()
+	go Solve(*bot, wg, sol)
 
-	close(sol)
-	close(err)
+	// wait for all goroutines to finish
+	go func() {
+		wg.Wait()
+		close(sol)
+	}()
 
-	switch len(sol) {
-	case 0:
-		return nil, fmt.Errorf("no solution found")
-	default:
-		shortest := <-sol
-		for s := range sol {
-			if s.Steps < shortest.Steps {
-				shortest = s
+	// while waiting, find shortest of incoming solutions
+	var res *m.Solution = nil
+	for {
+		select {
+		case s, ok := <-sol:
+			if !ok {
+				return res, nil
+			} else if res == nil || s.Steps < res.Steps {
+				res = s
 			}
+		case <-ctx.Done():
+			return res, nil
 		}
-		return shortest, nil
 	}
 }
 
 // recursive solving function
-func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution, err chan<- error) {
+func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution) {
 	defer wg.Done()
 	for {
-		cnt, dirs := bot.CountPaths()
-		switch cnt {
+		dirs := bot.CountPaths()
+		switch len(dirs) {
 		case 0:
-			err <- fmt.Errorf("no path found")
 			return
 		case 1:
 			bot.Move(dirs[0])
 			if bot.Pos.Type == m.End {
 				sol <- &m.Solution{
-					Route: bot.Route,
 					Steps: bot.Steps,
+					Route: bot.Route,
 				}
 				return
 			}
@@ -65,8 +68,9 @@ func Solve(bot m.Bot, wg *sync.WaitGroup, sol chan<- *m.Solution, err chan<- err
 					return
 				}
 				wg.Add(1)
-				go Solve(b, wg, sol, err)
+				go Solve(b, wg, sol)
 			}
+			return
 		}
 	}
 }
