@@ -13,10 +13,10 @@ const (
 type Direction uint8
 
 const (
-	Up Direction = iota
-	Right
-	Down
-	Left
+	North Direction = iota
+	East
+	South
+	West
 	None
 )
 
@@ -81,16 +81,16 @@ func CopyBot(src *Bot) Bot {
 // 	return dst
 // }
 
-// updates the bot's position and route
+// Northdates the bot's position and route
 func (b *Bot) Move(d Direction) {
 	switch d {
-	case Up:
+	case North:
 		b.Pos = b.Pos.Top
-	case Right:
+	case East:
 		b.Pos = b.Pos.Right
-	case Down:
+	case South:
 		b.Pos = b.Pos.Bottom
-	case Left:
+	case West:
 		b.Pos = b.Pos.Left
 	}
 	b.Dir = d
@@ -102,58 +102,58 @@ func (b *Bot) Move(d Direction) {
 func (b *Bot) CountPaths() []Direction {
 	dirs := make([]Direction, 0)
 	switch b.Dir {
-	case Up:
-		if b.Pos.Right != nil && b.Pos.Right.Type != Wall {
-			dirs = append(dirs, Right)
-		}
-		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
-			dirs = append(dirs, Down)
-		}
-		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
-			dirs = append(dirs, Left)
-		}
-	case Right:
-		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
-			dirs = append(dirs, Down)
-		}
-		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
-			dirs = append(dirs, Left)
-		}
+	case North:
 		if b.Pos.Top != nil && b.Pos.Top.Type != Wall {
-			dirs = append(dirs, Up)
-		}
-	case Down:
-		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
-			dirs = append(dirs, Left)
-		}
-		if b.Pos.Top != nil && b.Pos.Top.Type != Wall {
-			dirs = append(dirs, Up)
+			dirs = append(dirs, North)
 		}
 		if b.Pos.Right != nil && b.Pos.Right.Type != Wall {
-			dirs = append(dirs, Right)
+			dirs = append(dirs, East)
 		}
-	case Left:
+		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
+			dirs = append(dirs, West)
+		}
+	case East:
 		if b.Pos.Top != nil && b.Pos.Top.Type != Wall {
-			dirs = append(dirs, Up)
+			dirs = append(dirs, North)
 		}
 		if b.Pos.Right != nil && b.Pos.Right.Type != Wall {
-			dirs = append(dirs, Right)
+			dirs = append(dirs, East)
 		}
 		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
-			dirs = append(dirs, Down)
+			dirs = append(dirs, South)
+		}
+	case South:
+		if b.Pos.Right != nil && b.Pos.Right.Type != Wall {
+			dirs = append(dirs, East)
+		}
+		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
+			dirs = append(dirs, South)
+		}
+		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
+			dirs = append(dirs, West)
+		}
+	case West:
+		if b.Pos.Top != nil && b.Pos.Top.Type != Wall {
+			dirs = append(dirs, North)
+		}
+		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
+			dirs = append(dirs, West)
+		}
+		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
+			dirs = append(dirs, South)
 		}
 	case None:
 		if b.Pos.Top != nil && b.Pos.Top.Type != Wall {
-			dirs = append(dirs, Up)
+			dirs = append(dirs, North)
 		}
 		if b.Pos.Right != nil && b.Pos.Right.Type != Wall {
-			dirs = append(dirs, Right)
+			dirs = append(dirs, East)
 		}
 		if b.Pos.Bottom != nil && b.Pos.Bottom.Type != Wall {
-			dirs = append(dirs, Down)
+			dirs = append(dirs, South)
 		}
 		if b.Pos.Left != nil && b.Pos.Left.Type != Wall {
-			dirs = append(dirs, Left)
+			dirs = append(dirs, West)
 		}
 	}
 
